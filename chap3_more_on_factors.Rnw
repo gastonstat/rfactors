@@ -1,0 +1,146 @@
+\chapter{More about Factors}
+
+So far we've seen a comprehensive review of the functions \code{factor()}, and \code{levels()}. Now we'll talk about other accessory functions for creating and handling factors in \R{}.
+
+
+
+\section{Categorizing a quantitative variable}
+A common data manipulation task is: how to get a categorical variable from a quantitative variable? In other words, how to discretize or categorize a quantitative variable?
+
+For this kind of common task \R{} provides the handy function \code{cut()}. The idea is to \textit{cut} values of a numeric input vector into intervals, which in turn will be the levels of the generated factor. The usage of \code{cut()} is:
+
+\begin{verbatim}
+  cut(x, breaks, labels = NULL, include.lowest = FALSE,
+      right = TRUE, dig.lab = 3, ordered_result = FALSE, ...)
+\end{verbatim}
+
+with the following arguments:
+\begin{itemize}
+ \item \code{x} a numeric vector which is to be converted to a factor by cutting.
+ \item \code{breaks} numeric vector giving the number of intervals into which \code{x} is to be cut.
+ \item \code{labels} labels for the levels of the resulting category.
+ \item \code{include.lowest} logical indicating if values equal to the lowest 'breaks' point should be included.
+ \item \code{right} logical, indicating if the intervals should be closed on the right.
+ \item \code{dig.lab} integer which is used when labels are not given.
+ \item \code{ordered\_result} logical: should the result be an ordered factor?
+\end{itemize}
+
+
+\paragraph{Example}
+Here's an example. The following code creates a numeric vector, \code{income}, that generates some fake values of a hypothetical variable income.
+
+<<using_cut>>=
+# cutting a quantitative variable
+set.seed(321)
+income <- round(runif(n = 1000, min = 100, max = 500), 2)
+@
+
+To convert \code{income} into a factor we use \code{cut()}. The first argument is the input vector (\code{income} in this case). The argument \code{breaks} is used to indicate the number of categories or levels of the output factor (e.g. 10)
+
+<<>>=
+# cutting a quantitative variable
+income_level <- cut(x = income, breaks = 10)
+
+levels(income_level)
+@
+
+As you can tell, \code{income\_level} has 10 levels; each level formed by an interval. Moreover, the intervals are all of the same form: a range of values with the lower bound surrounded by a parenthesis, and the upper bound surrounded by a bracket.
+
+You can inspect the produced factor \code{income\_level} and check the frequencies with \code{table()}
+
+<<>>=
+table(income_level)
+@
+
+By default, \code{cut()} has its argument \code{right} set to \code{TRUE}. This means that the intervals are open on the left (and closed on the right):
+
+<<cut_ex1_right>>=
+# using other cutting break points
+income_breaks <- seq(from = 100, to = 500, by = 50)
+income_a <- cut(x = income, breaks = income_breaks)
+table(income_a)
+sum(table(income_a))
+@
+
+To change the default way in which intervals are open and closed you can set \code{right = FALSE}. This option produces intervals closed on the left and open on the right:
+
+<<cut_ex1_left>>=
+# using other cutting break points
+income_b <- cut(x = income, breaks = income_breaks, right = FALSE)
+table(income_b)
+sum(table(income_b))
+@
+
+You can change the labels of the levels using the argument \code{labels}. For example, let's say we want to name the resulting levels with letters. The first level \Sexpr{levels(income_b)[1]} will be changed to \code{"a"}, the second level \Sexpr{levels(income_b)[2]} will be changed to \code{"b"}, and so on.
+
+<<>>=
+income_c <- cut(x = income, breaks = income_breaks, 
+                labels = letters[1:(length(income_breaks)-1)])
+
+table(income_c)
+@
+
+
+
+\subsection{Factor into indicators}
+Another frequent operation is to decompose a categorical variable into indicators, also known as dummy variables. The idea is to create a table (rectangular array or matrix) with as many columns as levels. Each column is a binary vairbale (0, or 1).
+
+You can think of this as ``unfolding'' a factor. Other authors call it creating a disjunctive table. Each row has only one 1, and the rest of values are zeros. The sum of values in a column equals the number of elements in that particular category.
+
+Say you have a factor with category temperatures \code{hot} and \code{cold}. One way to obtain dummy indicators for each temperatur level is to construct a matrix with as many columns as categories to binarize:
+
+<<>>=
+# example
+hot_cold = gl(n = 2, k = 3, labels = c('hot', 'cold'))
+
+hot_cold_mat = matrix(0, nrow = length(hot_cold), ncol = nlevels(hot_cold))
+hot_cold_mat[hot_cold == 'hot', 1] = 1 
+hot_cold_mat[hot_cold == 'cold', 2] = 1 
+dimnames(hot_cold_mat) = list(1:length(hot_cold), c('hot', 'cold'))
+hot_cold_mat
+
+# sum of columns equals elements in each category
+colSums(hot_cold_mat)
+@
+
+
+
+\subsection{Generating Factors Levels with \code{gl()}}
+In addition to the function \code{factor()}, there's a secondary function that you can use to create factors with a simple structure: \code{gl()}. This function generates factors by specifying a pattern of levels. Here's its usage:
+
+\begin{verbatim}
+  gl(n, k, length = n*k, labels = seq_len(x), ordered = FALSE)
+\end{verbatim}
+
+with the following arguments:
+\begin{itemize}
+ \item \code{n} an integer giving the number of levels.
+ \item \code{k} an integer giving the number of replications.
+ \item \code{length} an integer giving the length of the result.
+ \item \code{labels} an optional vector of labels for the resulting factor levels.
+ \item \code{ordered} logical indicating whether the result should be ordered or not.
+\end{itemize}
+
+Here's an example on how to use \code{gl()}:
+
+<<gl_ex1>>=
+# factor with gl()
+num_levs = 4
+num_reps = 3
+simple_factor = gl(num_levs, num_reps)
+simple_factor
+@
+
+The main inputs of \code{gl()} are \code{n} and \code{k}, that is, the number of levels and the number of replications of each level. Especially for working with data under the approach of \textit{Design of Experiments} (DoE), \code{gl()} can be very useful.
+
+Here's another example setting the arguments \code{labels} and \code{length}:
+
+<<gl_ex2>>=
+# another factor with gl()
+girl_boy = gl(2, 4, labels = c("girl", "boy"), length = 7)
+girl_boy
+@
+
+By default, the total number of elements is 8 (\code{n=2} $\times$ \code{k=4}). Four \code{girl}'s and four \code{boy}'s. But since we set the argument \code{length = 7}, we only got three \code{boy}'s.
+
+

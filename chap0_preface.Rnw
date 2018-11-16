@@ -1,0 +1,57 @@
+% !Rnw root = ../Exploratory_Multiblock_Methods.Rnw
+
+
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+I probably shouldn't admit this in public but I didn't enjoy my years as an undergraduate college student. I kind of hated those years, mostly because I was a total misfit (think of the ugly duckling). But as years have gone by, I've been able to identify a crucial missing link in my early formal education: \textit{data visualization}. Yes, I know it sounds crazy but I'm absolutely positive that things would have been radically different had I only been exposed early on my data crunching career to the fascinating world of charts, plots, graphics, and diagrams.
+
+Even though my program syllabus was full of courses such as geometry, algebra, calculus, probability, and statistics, I never had the chance to see a lot of graphics. There were many equations for sure. Hundreds of blackboards, slides, and a few power point presentations. But almost no graphics. One of the rare charts were some population pyramids in my Demography course, and some basic charts during my ``advanced'' \textit{Excel} course. The last time I checked the program offered by my college (not very long ago), I discoverd some changes. But not the changes I was expecting. There are more courses on economics, management, and finance. Sadly, there's still no dedicated data visualization material.
+
+A couple of years after obtaining my undergrad degree I went to grad school pursuing a masters degree in statistics. There, I was able to overcome my traumatic dissapointment when Tomas Aluja, my former advisor, introduced me to the mind-blowing methods for multivariate data analysis. I'll never forget the day when I applied Princpical Components Analysis (PCA) for the first time. That was a revealing moment, my \textit{fiat-lux} episode. You cannot imagine the joy I experienced when I realized the magic-mystical event: going from a table of numbers into a visual display. Finally, I was able to see what the data looked like, literally.
+
+The more I became interested in dataviz and exploratory methods.
+Parallel to my grad years I also started to work in statistical consulting projects. The more projects I got involved with, the clearer was to me the revelant roled played by exploration. EDA is part of any data analysis project. It may not be regarded as the outcome, but it sure does occupy a central space.
+
+I'm happy to see that data visualization has taken a main role in many programs (not in my university though). It is mainstream in the literature. It is amazing to see a bloom of tools and resources for data analysis (mostly driven by infographics, visual design, and communication). This impetus has dragged alongside the relevance of Exploratory Data Analysis (EDA). But it seems to me that EDA is still lagged behind. I think that the main reason for this lagging is because of the traditional way courses are taught. The emphasis is put on the inference, testing, confirmation, modeling, prediction, and validation of models. Data preprocessing, wranggling, pumbling, cleaning, and exploration are not the main dishes in class work. Though a lot of programs have changed this.
+
+Even though we have a lot of available resources about dataviz and exploration, there's still a gap regarding categorical data.
+In my humble opinion, we have put categorical data as variables or attributes of a second-class (and sometimes even third-class) type of information. With most techniques and methods taught requiring quantitative data, categorical data has been left behind.
+
+
+\paragraph{Why this book}
+I wrote this book having three things in mind: 1) my deep interest around categorical data, 2) my passion for data visualization, and 3) my fascination with exploratory data analysis approaches. More precisely, the content of this text is the result of the intersection between data visualization, exploratory analysis, and categorical data. 
+
+The material I'm presenting to you is the derived outcome of my experience as an applied statistician. Having had the chance to work in a broad range of fields such as education, public health, genetics, food science, marketing, and finance, I've ended up embracing a fascination for tools, methods and techniques that have a decisive exploratory flavor. The other major reason for me to write this text it is because of my frustration with the lack of computational and statistical resources dedicated to handling categorical data.
+
+My aim is to show you how to use and apply the rich set of tools \R{} provides so you can make sense of your categorical data. In other words, this book addresses the question: \textbf{How to manipulate, analyze, and explore your categorical data in \R{}?}
+
+In this book I focus on those methods that have a decisive \textbf{exploratory} flavor. It is not that I don't care about prediction or discrimination purposes. But I prefer to put emphasis on those tools that can help you gain insight of your data before any predictions or decisions are made. 
+
+
+
+
+\paragraph{Who's this book for?}
+This book is not targeted to a specific type of audience. Having said that, I'm sure this book will be a great resource and consulting text for graduate and post-graduate students, as well as data analysts (in the more general sense of this term).
+
+This book may seem like a niche book: dedicated to categorical data exclusively, and only for visualization tasks. Yes, it is a niche book. Does this mean is useless? Absolutely no! On the contrary, this book is the result of my professional experience and personal frustration of not having resources like these out there. Except for a few types of graphics, I'm not creating or showing entirely new concepts. The vast majority of the contents in this book can be found in many other textbooks. But that's precisely the problem. There's no book like this one. So, the real deal of this book is that it offers you access to a broad range of concepts that  you would otherwise find scattered in dozens of expensive books.
+
+Do me a favor and give a copy of this ebook to your colleagues, friends, students, and PI's. If they are not satisfied with my work, they just have to delete the file from their computers (no hard feelings). However, I'm sure most readers will find real value in a nugget like this one.
+
+
+
+\subsection*{Acknowledgements}
+This book wouldn't exist if various stars had not been aligned. 
+
+The main catalyzer was my French colleague and friend Sebastien Le. After throwing at me the idea of writing a book, I discovered that I could talk about one of my passions ---visualization--- applied to one of my interests ---categorical data--- ... in R, of course.
+
+I want to thank my sensei Tomas Aluja for showing me the landscape of exploratory methods and for introducing me to the fascinating world of data analysis techniques for dimension reduction.
+
+Last but not least, you wouldn't be reading this book if it wasn't for the tireless support and endless patience of my loving wife Jessica.  
+
+May the FoRce be with you!
+
+
+\vspace{7mm}
+Gaston Sanchez \\
+Berkeley, California \\
+Month 2015 \\

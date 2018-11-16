@@ -1,0 +1,150 @@
+\documentclass[10.5pt]{book}
+
+% pakcages
+%\usepackage[margin=3cm,bottom=2cm,includehead,includefoot]{geometry}
+\usepackage{alltt}
+\usepackage{amsmath}
+\usepackage{breakurl}
+\usepackage{enumitem}
+\usepackage[latin1]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage[margin=0.75in, paperwidth=6in, paperheight=9in, includehead, includefoot]{geometry}
+\usepackage[breaklinks=true]{hyperref}
+\usepackage{parskip}
+\usepackage{relsize}
+\usepackage{setspace}
+\usepackage{tocloft}
+
+% some colors
+\definecolor{gray}{rgb}{0.7,0.7,0.7}
+\definecolor{tomato}{rgb}{0.87,0.32,0.24}
+\definecolor{myindex}{rgb}{0.45,0.49,0.74}
+\definecolor{darkgray}{rgb}{0.3,0.3,0.3}
+\definecolor{lightgray}{rgb}{0.6,0.6,0.6}
+\definecolor{linkblue}{rgb}{0.33,0.41,0.90}
+\definecolor{otherblue}{rgb}{0.066,0.545,0.890}
+\definecolor{citepurple}{rgb}{0.58,0.63,0.91}
+\definecolor{oldpurple}{rgb}{0.77,0.0,0.50}
+
+% link colors
+\hypersetup{
+  colorlinks=true,
+  urlcolor=linkblue,
+  linkcolor=linkblue,
+}
+
+% other settings
+\setlength{\parindent}{0in}
+\newcommand{\R}{\textsf{R}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+
+\begin{document}
+
+
+\pagestyle{empty}
+
+\title{\textbf{A booklet of R factors}}
+
+\author{
+ \Large{
+ \textbf{\textcolor{darkgray}{G}}\textcolor{lightgray}{aston} 
+ \textbf{\textcolor{darkgray}{S}}\textcolor{lightgray}{anchez}} \\
+ \texttt{\href{http://www.gastonsanchez.com}{gastonsanchez.com}}
+}
+
+\date{}
+
+\maketitle
+
+\frontmatter
+\pagenumbering{roman} % roman numbers
+
+% 3rd page, opinion
+%----------------------------------------------------------
+\newpage
+\thispagestyle{empty}
+
+\chapter*{About this ebook}
+
+\textbf{\textcolor{citepurple}{Abstract}} \\
+This ebook aims to show you basic tools for handling categorical data with \R{} factors.
+
+\vspace{2mm}
+\textbf{\textcolor{citepurple}{About the reader}} \\
+I am assuming two things about you: 1) You acknowledge the importance of data exploration and visualization; 2) you have some knowledge of the statistical software \R{}.
+
+\vspace{2mm}
+\textbf{\textcolor{citepurple}{Citation}} \\
+\textsf{Sanchez, G. (2018) \textbf{A booklet of R factors} \\
+URL} \hspace{1.5mm} \texttt{http://www.gastonsanchez.com/rfactors.pdf}
+
+
+\vspace{2mm}
+\textbf{\textcolor{citepurple}{Source} }\\
+Github Repository: \\
+\url{https://github.com/gastonstat/rfactors}
+
+\vspace{2mm}
+\textbf{\textcolor{citepurple}{License} }\\
+Creative Commons Attribution-ShareAlike 4.0 Unported: \\
+\url{http://creativecommons.org/licenses/by-sa/4.0/}
+
+\vspace{2mm}
+\textbf{\textcolor{citepurple}{Revision}} \\
+November 17, 2018 \\
+Version 1.0
+
+
+\newpage
+% Include dots between chapter name and page number
+\renewcommand{\cftchapdotsep}{\cftdotsep}
+% include the ToC
+\tableofcontents
+
+
+
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead[]{\thepage}
+\rhead[\thepage]{}
+\lfoot{\scriptsize{\textsf{\textcolor{gray}{CC BY-SA 4.0 \hspace{.5mm} Gaston Sanchez}}}}
+\rfoot{\scriptsize{\textsf{\textcolor{gray}{A booklet of R factors}}}}
+
+
+<<setup, include=FALSE>>=
+# smaller font size for chunks
+thm <- knit_theme$get("default")
+knit_theme$set(thm)
+opts_chunk$set(tidy = FALSE, size = 'small')
+@
+
+
+\newpage
+%\thispagestyle{empty}
+%\mbox{}
+
+\mainmatter
+\pagenumbering{arabic}
+
+<<Chap1_Intro, child='chap1_about_factors.Rnw', eval=TRUE>>=
+@
+
+<<Chap2_Factor, child='chap2_factor_function.Rnw', eval=TRUE>>=
+@
+
+<<Chap3_More_Factors, child='chap3_more_on_factors.Rnw', eval=TRUE>>=
+@
+
+<<Chap4_Univariate, child='chap4_univariate.Rnw', eval=FALSE>>=
+@
+
+<<Chap5_Bivariate_part1, child='chap5_bivariate_part1.Rnw', eval=FALSE>>=
+@
+
+<<Chap6_Bivariate_part2, child='chap6_bivariate_part2.Rnw', eval=FALSE>>=
+@
+
+\end{document}

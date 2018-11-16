@@ -1,0 +1,376 @@
+\chapter{A closer look at \code{factor()}}
+
+Since working with categorical data in \R{} typically involves working with factors, you should become familiar with the variety of functions related with them. In the following sections we'll cover a bunch of topics and details about factors so you can be better prepared to deal with any type of categorical data.
+
+
+\section{Function \code{factor()}}
+Given the fundamental role played by the function \code{factor()} we need to pay a closer look at its arguments. If you check the documentation ---\code{help(factor)}--- you'll see that the usage of the function \code{factor()} is:
+
+\begin{verbatim}
+  factor(x = character(), levels, labels = levels,
+         exclude = NA, ordered = is.ordered(x), nmax = NA)
+\end{verbatim}
+
+with the following arguments:
+\begin{itemize}
+ \item \code{x} a vector of data
+ \item \code{levels} an optional vector for the categories
+ \item \code{labels} an optional character vector of labels for the levels
+ \item \code{exclude} a vector of values to be excluded when forming the set of levels
+ \item \code{ordered} logical value to indicate if the levels should be regarded as ordered
+ \item \code{nmax} an upper bound on the number of levels
+\end{itemize}
+
+The main argument of \code{factor()} is the input vector \code{x}. The next argument is \code{levels}, followed by \code{labels}, both of which are optional arguments. Although you won't always be providing values for \code{levels} and \code{labels}, it is important to understand how \R{} handles these arguments by default.
+
+
+\paragraph{Argument \code{levels}.}
+If \code{levels} is not provided (which is what happens in most cases), then \R{} assigns the unique values in \code{x} as the category levels.
+
+For example, consider our numeric vector from the first example: \code{num\_vector} contains unique values 1, 2, and 3. 
+
+<<>>=
+# numeric vector
+num_vector <- c(1, 2, 3, 1, 2, 3, 2)
+
+# creating a factor from num_vector
+first_factor <- factor(num_vector)
+
+first_factor
+@
+
+Now imagine we want to have \code{levels} 1, 2, 3, 4, and 5. This is how you can define the factor with an extended set of levels:
+
+<<using_levels>>=
+# numeric vector
+num_vector
+# defining levels
+one_factor <- factor(num_vector, levels = 1:5)
+one_factor
+@
+
+Although the created factor only has values between 1 and 3, the \code{levels} range from 1 to 5. This can be useful if we plan to add elements whose values are not in the input vector \code{num\_vector}. For instance, you can append two more elements to \code{one\_factor} with values \code{4} and \code{5} like this: 
+
+<<adding_levels>>=
+# adding values 4 and 5
+one_factor[c(8, 9)] <- c(4, 5)
+one_factor
+@
+
+If you attempt to insert an element having a value that is not in the predefined set of levels, \R{} will insert a missing value (\code{<NA>}) instead, and you'll get a warning message like the one below:
+
+<<value_not_in_levels>>=
+# attempting to add value 6 (not in levels)
+one_factor[1] <- 6
+one_factor
+@
+
+
+\paragraph{Argument \code{labels}.}
+Another very useful argument is \code{labels}, which allows you to  provide a string vector for naming the \code{levels} in a different way from the values in \code{x}. Let's take the numeric vector \code{num\_vector} again, and say we want to use words as labels instead of numeric values. Here's how you can create a factor with predefined \code{labels}:
+
+<<using_labels>>=
+# defining labels
+num_word_vector <- factor(num_vector, labels = c("one", "two", "three"))
+
+num_word_vector
+@
+
+
+\paragraph{Argument \code{exclude}.}
+If you want to ignore some values of the input vector \code{x}, you can use the \code{exclude} argument. You just need to provide those values which will be removed from the set of \code{levels}. 
+
+<<using_exclude>>=
+# excluding level 3
+factor(num_vector, exclude = 3)
+
+# excluding levels 1 and 3
+factor(num_vector, exclude = c(1,3))
+@
+
+The side effect of \code{exclude} is that it returns a missing value (\code{<NA>}) for each element that was excluded, which is not always what we want. Here's one way to remove the missing values when excluding 3:
+
+<<rm_NA_exclude>>=
+# excluding level 3
+num_fac12 <- factor(num_vector, exclude = 3)
+
+# oops, we have some missing values
+num_fac12
+# removing missing values
+num_fac12[!is.na(num_fac12)]
+@
+
+
+
+\subsection{Manipulating Categories or Levels}
+We've seen how to work with the argument \code{levels} inside the function \code{factor()}. But that's not the only way in which you can manipulate the levels of a factor. Closely related to \code{factor()} there are two other important sibling functions: \code{levels()} and \code{nlevels()}.
+
+The function \code{levels()} lets you have access to the \code{levels} attribute of a factor. This means that you can use \code{levels()} for both: \textbf{getting} the categories, and \textbf{setting} the categories. 
+
+\paragraph{Getting levels.}
+To get the different values for the categories in a factor you just need to apply \code{levels()} on a factor:
+
+<<levels_function>>=
+# levels()
+levels(first_factor)
+levels(third_factor)
+@
+
+
+\paragraph{Setting levels.}
+If what you want is to specify the \code{levels} attribute, you must use the function \code{levels()} followed by the assignment operator \code{<-}. Suppose that we want to change the levels of \code{first\_factor} and express them in roman numerals. You can achieve this with:
+
+<<levels_assignment>>=
+# copy of first factor
+first_factor_copy <- first_factor
+first_factor_copy
+
+# setting new levels
+levels(first_factor_copy) <- c("I", "II", "III")
+first_factor_copy
+@
+
+
+\paragraph{Number of Levels.}
+Besides the function \code{levels()} there's another very handy function: \code{nlevels()}. This function allows you to return the number of levels of a factor. In other words, \code{nlevels()} returns the length of the attribute \code{levels}:
+
+<<nlevels_function>>=
+# nlevels()
+nlevels(first_factor)
+
+# equivalent to
+length(levels(first_factor))
+@
+
+Don't confuse \code{length()} with \code{nlevels()}. The former returns the number of elements in a factor, while the latter returns the number of levels.
+
+
+\paragraph{Merging Levels.}
+Sometimes we may need to ``merge'' or collapse two or more different levels into one single level. We can achieve this by using the function \code{levels()} and assigning a new vector of levels containing repeated values for those categories that we wish to merge. 
+
+For example, say we want to combine categories \code{I} and \code{III} into a new level \code{I+III}. Here's how to do it:
+
+<<merging_levels>>=
+# nlevels()
+levels(first_factor) <- c("I+III", "II", "I+III")
+
+# equivalent to
+first_factor
+@
+
+Note that the length of the vector specifying the merged categories will be the same as the number of levels.
+
+
+\paragraph{Factors with missing values.}
+Missing values are ubiquitous and they can appear in any data set. This means that we can have categorical variables with missing values. For instance, let's say we have a vector \textit{drinks} with the type of drink ordered by a group of 7 individuals:
+
+<<drinks>>=
+# vector of drinks
+drink_type <- c('water', 'water', 'beer', 'wine', 'soda', 'water', NA)
+drink_type
+@
+
+As you can tell from the vector \code{drink\_type}, there is a missing value for the last element. Now let's convert this vector into a factor:
+
+<<drinks_factor>>=
+# drinks factor
+drinks <- factor(drink_type)
+drinks
+@
+
+Missing values in factors are displayed as \code{<NA>} instead of just \code{NA}.
+
+What if you want to consider a missing value as another level? To do this, first you need to add a new level to the factor. For instance, you can take the current levels and append a string \code{"NA"} that will be the level of the missing values:
+
+<<>>=
+# add extra level 'NA'
+levels(drinks) <- c(levels(drinks), "NA")
+
+drinks
+@
+
+Now that there is a level dedicated to missing values, you can assign a string \code{"NA"} to the actual missing values:
+
+<<>>=
+drinks[is.na(drinks)] <- "NA"
+
+drinks
+@
+Notice that \code{drinks} has now a level for \code{NA}. Notice also that this label is not anymore displayed as \code{<NA>}. In other words, this is not an R missing value anymore. It is just another category or level:
+
+<<>>=
+is.na(drinks)
+@
+
+
+
+\subsection{Ordinal factors}
+By default, \code{factor()} creates a \textit{nominal} categorical variable, not an ordinal. One way to check that you have a nominal factor is to use the function \code{is.ordered()}, which returns \code{TRUE} if its argument is an ordinal factor.
+
+<<is_ordered_factor>>=
+# ordinal factor?
+is.ordered(num_vector)
+@
+
+If you want to specify an ordinal factor you must use the \code{ordered} argument of \code{factor()}. This is how you can generate an ordinal value from \code{num\_vector}:
+
+<<ordinal_num_factor>>=
+# ordinal factor from numeric vector
+ordinal_num <- factor(num_vector, ordered = TRUE)
+ordinal_num
+@
+
+As you can tell from the snippet above, the levels of \code{ordinal\_factor} are displayed with less-than symbols \code{'<'}, which means that the levels have an increasing order. We can also get an ordinal factor from our string vector:
+
+<<ordinal_str_factor>>=
+# ordinal factor from character vector
+ordinal_str <- factor(str_vector, ordered = TRUE)
+ordinal_str
+@
+
+In fact, when you set \code{ordered = TRUE}, \R{} sorts the provided values in alphanumeric order. If you have the following alphanumeric vector \code{("a1", "1a", "1b", "b1")}, what do you think will be the generated ordered factor? Let's check the answer:
+
+<<ordinal_alphanum_factor>>=
+# alphanumeric vector
+alphanum <- c("a1", "1a", "1b", "b1")
+
+# ordinal factor from character vector
+ordinal_alphanum <- factor(alphanum, ordered = TRUE)
+ordinal_alphanum
+@
+
+An alternative way to specify an ordinal variable is by using the function \code{ordered()}, which is just a convenient wrapper for \\
+\code{factor(x, \dots, ordered = TRUE)}:
+
+<<ordered_fun>>=
+# ordinal factor with ordered()
+ordered(num_vector)
+# same as using 'ordered' argument
+factor(num_vector, ordered = TRUE)
+@
+
+A word of caution. Don't confuse the function \code{ordered()} with \code{order()}. They are not equivalent. \code{order()} arranges a vector into ascending or descending order, and returns the sorted vector. \code{ordered()}, as we've seen, is used to get ordinal factors.
+
+Of course, you won't always be using the default order provided by the functions \code{factor(..., ordered = TRUE)} or \code{ordered()}. Sometimes you want to determine categories according to a different order. 
+
+For example, let's take the values of \code{str\_vector} and let's assume that we want them in descending order, that is, \code{c < b < a}. How can you do that? Easy, you just need to specify the \code{levels} in the order you want them and set \code{ordered = TRUE} (or use \code{ordered()}):
+
+<<ordered_levels>>=
+# setting levels with specified order
+factor(str_vector, levels = c("c", "b", "a"), ordered = TRUE)
+
+# equivalently
+ordered(str_vector, levels = c("c", "b", "a"))
+@
+
+Here's another example. Consider a set of size values \code{"xs"} extra-small, \code{"sm"} small, \code{"md"} medium, \code{"lg"} large, and \code{"xl"} extra-large. If you have a vector with size values you can create an ordinal variable as follows:
+
+<<ordered_levels2>>=
+# vector of sizes
+sizes <- c("sm", "xs", "xl", "lg", "xs", "lg")
+
+# setting levels with specified order
+ordered(sizes, levels = c("xs", "sm", "md", "lg", "xl"))
+@
+
+Notice that when you create an ordinal factor, the given \code{levels} will always be considered in an increasing order. This means that the first value of \code{levels} will be the smallest one, then the second one, and so on. The last category, in turn, is taken as the one at the top of the scale.
+
+
+Now that we have several nominal and ordinal factors, we can compare the behavior of \code{is.ordered()} on two factors:
+
+<<is_ordered>>=
+# is.ordered() on an ordinal factor
+ordinal_str
+is.ordered(ordinal_str)
+
+# is.ordered() on a nominal factor
+second_factor
+is.ordered(second_factor)
+@
+
+
+
+
+\subsection{Unclassing factors}
+We've mentioned that factors are stored as vectors of integers (for efficiency reasons). But we also said that factors are more than vectors. Even though a factor is displayed with string labels, the way it is stored internally is as integers. Why is this important to know? Because there will be occasions in which you'll need to know exactly what numbers are associated to each level values. 
+
+Imagine you have a factor with \code{levels} 11, 22, 33, 44.
+
+<<unclass_example>>=
+# factor
+xfactor <- factor(c(22, 11, 44, 33, 11, 22, 44))
+xfactor
+@
+
+To obtain the integer vector associated to \code{xfactor} you can use the function \code{unclass()}: 
+
+<<unclass_factor>>=
+# unclassing a factor
+unclass(xfactor)
+@
+
+As you can see, the \code{levels} \code{("11" "22" "33" "44")} were mapped to the vector of integers \code{(1 2 3 4)}.
+
+An alternative option is to simply apply \code{as.numeric()} or \code{as.integer()} instead of using \code{unclass()}:
+
+<<asnumeric_factor>>=
+# equivalent to unclass
+as.integer(xfactor)
+
+# equivalent to unclass
+as.numeric(xfactor)
+@
+
+
+Although rarely used, there can be some cases in which what you need to do is revert the integer values in order to get the original factor levels. This is only possible when the levels of the factor are themselves numeric. To accomplish this use the following command:
+
+<<revert_levels>>=
+# recovering numeric levels
+as.numeric(levels(xfactor))[xfactor]
+@
+
+
+
+
+\subsection{Reordering factors}
+Sometimes it's not enough with creating an ordinal variable or setting the order of the categories. Occasionally, you would like to reorder a factor. For this purpose you can use the function \code{reorder()}
+
+<<reorder_function>>=
+vowels <- c('a', 'b', 'c', 'd', 'e')
+set.seed(975)
+vowels_fac <- factor(sample(vowels, size = 20, replace = TRUE))
+#reorder(vowels_fac, count, median)
+
+# reordering a factor
+bymedian <- with(InsectSprays, reorder(spray, count, median))
+@
+
+
+\paragraph{Reordering levels.}
+Another useful function to reorder the levels of a factor is \code{relevel()}. This function has two main arguments: an unordered factor \code{x}, and a reference level \code{ref}. What \code{relevel()} does is to re-order the levels of a factor so that the level specified by \code{ref} will be the first level, while the others are moved down.
+
+For example, consider \code{one\_factor}, which is an unordered factor with levels \Sexpr{levels(one_factor)}. We can use \code{relevel()} to specify \code{ref=5} as the reference level. This will cause 5 to be the first level, while the rest of the levels will be moved down:
+
+<<relevel_function>>=
+one_factor
+
+# reorder levels of unordered factor
+relevel(one_factor, ref = 5)
+@
+
+
+
+
+\subsection{Dropping levels}
+"There are two tasks that are often performed on factors. One is to drop unused levels; this can be achieved by a call to \code{factor()} since \code{factor(y)} will drop any unused levels from \code{y} if \code{y} is a factor."
+
+"The second task is to coarsen the levels of a factor, that is, group two or more of them together into a single new level."
+
+<<coarse_factor>>=
+y <- sample(letters[1:5], 20, rep = TRUE)
+v <- as.factor(y)
+xx <- list(I = c("a", "e"), II = c("b", "c", "d"))
+levels(v) <- xx
+v
+@
+

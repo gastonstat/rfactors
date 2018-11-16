@@ -1,0 +1,210 @@
+\chapter{Categorical Data in R}
+I'm one of those with the humble opinion that great software for data science and analytics should have a data structure dedicated to handle categorical data. Lucky for us, \R{} is one of the greatest. In case you're not aware, one of the nicest features about \R{} is that it provides a data structure exclusively designed to handle categorical data: \textbf{factors}.
+
+The term ``factor'' as used in \R{} for handling categorical variables, comes from the terminology used in \textit{Analysis of Variance}, commonly referred to as ANOVA. In this statistical method, a categorical variable is commonly referred to as \textit{factor} and its categories are known as \textit{levels}. Perhaps this is not the best terminology but it is the one \R{} uses, which reflects its distinctive statistical origins. Especially for those users without a brackground in statistics, this is one of \R{}'s idiosyncracies that seems disconcerning at the beginning. But as long as you keep in mind that a factor is just the object that allows you to handle a qualitative variable you'll be fine. In case you need it, here's a short mantra to remember: \textit{``factors have levels''}.
+
+
+\section{Creating Factors}
+To create a factor in \R{} you use the homonym function \code{factor()}, which takes a vector as input. The vector can be either numeric, character or logical. Let's see our first example:
+
+<<factor_function>>=
+# numeric vector
+num_vector <- c(1, 2, 3, 1, 2, 3, 2)
+
+# creating a factor from num_vector
+first_factor <- factor(num_vector)
+
+first_factor
+@
+
+As you can tell from the previous code snippet, \code{factor()} converts the numeric vector \code{num\_vector} into a factor (i.e. a categorical variable) with 3 categories ---the so called \code{levels}. 
+
+You can also obtain a factor from a string vector:
+
+<<str_into_factor>>=
+# string vector
+str_vector <- c('a', 'b', 'c', 'b', 'c', 'a', 'c', 'b')
+
+str_vector
+
+# creating a factor from str_vector
+second_factor <- factor(str_vector)
+
+second_factor
+@
+
+Notice how \code{str\_vector} and \code{second\_factor} are displayed. Even though the elements are the same in both the vector and the factor, they are printed in different formats. The letters in the string vector are displayed with quotes, while the letters in the factor are printed without quotes.
+
+
+And of course, you can use a logical vector to generate a factor as well:
+
+<<logical_into_factor>>=
+# logical vector
+log_vector <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
+
+# creating a factor from log_vector
+third_factor <- factor(log_vector)
+
+third_factor
+@
+
+
+
+\subsection{How \R{} treats factors?}
+If you're curious and check the technical \textit{R Language Definition}, available online \url{https://cran.r-project.org/manuals.html}, you'll find that \R{} factors are referred to as \textit{compound objects}. According to the manual: ``Factors are currently implemented using an integer array to specify the actual levels and a second array of names that are mapped to the integers.'' 
+
+Essentially, a factor is internally stored using two arrays: one is an integer array containing the values of categories, the other array is the ``levels'' which has the names of categories which are mapped to the integers.
+
+Under the hood, the way \R{} stores factors is as vectors of integer values. One way to confirm this is using the function \code{storage.mode()}
+
+<<storage_of_factor>>=
+# storage of factor
+storage.mode(first_factor)
+@
+
+
+This means that we can manipulate factors just like we manipulate vectors. In addition, many functions for vectors can be applied to factors. For instance, we can use the function \code{length()} to get the number of elements in a factor:
+
+<<length_of_factor>>=
+# factors have length
+length(first_factor)
+@
+
+We can also use the square brackets \code{[ ]} to extract or select elements of a factor. Inside the brackets we specify vectors of indices such as numeric vectors, logical vectors, and sometimes even character vectors.
+
+<<brackets_on_factor>>=
+# first element
+first_factor[1]
+# third element
+first_factor[3]
+# second to fourth elements
+first_factor[2:4]
+# last element
+first_factor[length(first_factor)]
+# logical subsetting
+first_factor[rep(c(TRUE, FALSE), length.out = 7)]
+@
+
+If you have a factor with named elements, you can also specify the names of the elements within the brackets:
+
+<<>>=
+names(first_factor) <- letters[1:length(first_factor)]
+first_factor
+
+first_factor[c('b', 'd', 'f')]
+@
+
+
+However, you should know that factors are NOT really vectors. To see this you can check the behavior of the functions \code{is.factor()} and \code{is.vector()} on a factor:
+
+<<factor_not_vector>>=
+# factors are not vectors
+is.vector(first_factor)
+
+# factors are factors
+is.factor(first_factor)
+@
+
+Even a single element of a factor is also a factor:
+
+<<>>=
+class(first_factor[1])
+@
+
+
+
+\paragraph{So what makes a factor different from a vector?}
+Well, it turns out that factors have an additional attribute that vectors don't: \code{levels}. And as you can expect, the class of a factor is indeed \code{"factor"} (not \code{"vector"}).
+
+<<factor_attrs>>=
+# attributes of a factor
+attributes(first_factor)
+@
+
+Another feature that makes factors so special is that their values (the levels) are mapped to a set of character values for displaying purposes. This might seem like a minor feature but it has two important consequences. On the one hand, this implies that factors provide a way to store character values very efficiently. Why? Because each unique character value is stored only once, and the data itself is stored as a vector of integers.
+
+Notice how the numeric value \code{1} was mapped into the character value \code{"1"}. And the same happens for the other values \code{2} and \code{3} that are mapped into the characters \code{"2"} and \code{"3"}.
+
+
+
+
+
+\section{Factors and Data Tables}
+Usually we get data in some file. Rarely is the case when we have to input data manually. The files can be in text format; they can also be plain text format. Typical file extensions are csv, tsv, xml, json, or whatever other format. The most frequent case is either read data as text, or read data in some type of tabular format (spreadsheet-like table).
+
+For better or worse, when reading tabular data in \R{}, the default behavior of \code{read.table()} and similar functions (e.g. \code{read.csv()}, \code{read.fwf()}, etc), is to convert characters into factors. Unless you are totally comfortable with the way the data file has been structured, I recommend to turn off this behavior by setting the argument \code{stringsAsFactors = FALSE}. In this way you will have more freedom and flexibility to manipulate data and do string manipulations. Plus, you can always convert those character variables into factors or numbers.
+
+There is a caveat with \code{stringsAsFactors = FALSE}. The reason why \R{} converts characters into factors is because of memory efficiency. Internally, a \code{factor} is stored as an integer vector with an attribute \code{levels}. In general, this storage form is more efficient than storing a \code{character} vector. A better way to see this is with an example. We'll use the popular \code{iris} dataset which contains the categorical variable \code{Species}:
+
+<<iris_dataset>>=
+# iris data set
+head(iris)
+
+# Species as factor
+class(iris$Species)
+@
+
+Let's compare the sizes of apparently the same type of data:
+
+<<factor_storage_size>>=
+# species in two formats
+iris_factor <- iris$Species
+iris_string <- as.character(iris$Species)
+
+# comparison of memory size
+object.size(iris_factor)
+object.size(iris_string)
+@
+
+Note that the size of the factor \code{iris\_factor} is less than the character vector \code{iris\_string}. 
+
+For objects with a few number of elements, character vectors will be of smaller size than factors. For instance, consider the following example. Here we have a character vector of color names with 5 elements, and a factor derived from the vector of colors.
+
+<<>>=
+# vector of colros
+colrs <- c('blue', 'red', 'blue', 'green', 'red')
+
+# factor
+cols <- factor(colrs)
+@
+
+If we compare the size of the objects, you'll notice that the vector occupies much less memory than the factor
+
+<<>>=
+# comparing sizes
+object.size(colrs)
+object.size(cols)
+@
+
+
+
+\subsection{What is the advantage of \R{} factors?}
+Every time I teach about factors, there is inevitably one student who asks a very pertinent question: Why do we want to use factors? Isn't it redundant to have a \code{factor} object when there are already character or integer vectors? 
+
+I have two answers to this question. 
+
+The first has to do with the storage of factors. Storing a factor as integers will usually be more efficient than storing a character vector. As we've seen, this is an important issue especially when factors are of considerable size. The second reason has to do with \textit{ordinal} variables. Qualitative data can be classified into nominal and ordinal variables. Nominal variables could be easily handled with character vectors. In fact, nominal means name (values are just names or labels), and there's no natural order among the categories. A different case is when we have ordinal variables, like sizes \code{"small", "medium", "large"} or college years \code{"freshman", "sophomore", "junior", "senior"}. In these cases we are still using names of categories, but they can be arranged in increasing or decreasing order. In other words, we can rank the categories since they have a natural order: small is less than medium which is less than large. Likewise, freshman comes first, then sophomore, followed by junior, and finally senior.
+
+So here's an important question: How do we keep the order of categories in an ordinal variable? We can use a character vector to store the values. But a character vector does not allow us to store the ranking of categories. The solution in \R{} comes via factors. We can use factors to define ordinal variables, like the following example:
+
+<<>>=
+sizes <- factor(c('sm', 'md', 'lg', 'sm', 'md'),
+                levels = c('sm', 'md', 'lg'),
+                ordered = TRUE)
+
+sizes
+@
+
+We'll take in more detail about ordinal factors in the next chapter. For now, just keep in mind the \code{sizes} example. As you can tell, \code{sizes} has ordered levels, clearly identifying the first category \code{"sm"}, the second one \code{"md"}, and the third one \code{"lg"}
+
+
+
+\subsection{When to factor?}
+As mentioned above, all the reading table functions---e.g. \code{read.table(), read.csv(), read.delim(), read.fwf()}, etc.---import data tables as objects of class \code{data.frame}. In turn, the creation of data frames (e.g. via \code{data.frame()}) converts, by default, character strings into factors. We've talked about the \code{stringsAsFactors} argument of the function \code{data.frame()}. This is the argument that allows us to turn on or turn off the conversion of character strings into factors.
+
+So here's another question: \textbf{When do we want characters to become factors?} There is no universal answer to this question. The decision of whether to convert strings into factors is going to depend on various aspects. For instance, the purpose of the analysis, or the type of variable that contains the strings. Sometimes it will make sense to have a variable as \code{factor}, like \textit{gender} (e.g. male, female) or \textit{ethnicty} (e.g. hispanic, african-american, native-american). In other cases it does not make much sense to create a factor from a variable containing addresses or telephone numbers or names of individuals.
+
+There is also a another aspect related to the question of whether to convert strings as factors or not. In practice, most of the times we'll be working with some data set. The data we'll be provided with is what I call the \textbf{raw data}. Pretty much all real-life data analysis projects require the analyst to process, clean, and transform the raw data into a clean data version, also called \textit{tidy} data. Since the processing-cleaning phase involves manipulating text, formatting, grouping, changing scales, splitting strings, and a wide variety of operations, it is better to import the raw data and leave strings as characters. Once the clean data set has been created, then we can work with this version and convert some of the strings into factors.
+
+
+
